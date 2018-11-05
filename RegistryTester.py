@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from winreg import *
 import csv
 import os
@@ -17,7 +18,7 @@ try:
     i = 0
     while 1:
         name, data, rtype = EnumValue(aKey, i)
-        print(data)
+        #print(data)
         RegistryType = ''
         if (rtype == 1):
         	RegistryType = 'REG_SZ'
