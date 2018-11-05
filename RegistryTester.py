@@ -2,8 +2,22 @@
 from winreg import *
 import csv
 import os
+import tkinter as tk
+from tkinter import filedialog
+from tkinter import *
 
-csvfile = open('tester.csv', 'w', newline='')
+root= tk.Tk() 
+   
+#canvas1 = tk.Canvas(root, width = 450, height = 500) 
+#canvas1.pack()
+
+root.filename = filedialog.asksaveasfilename(initialdir = "/",title = "Choose name of CSV file, and where it should be saved",defaultextension = ".csv",filetypes = (("CSV files","*.csv"),("all files","*.*")))
+print(root.filename)
+      
+#button1 = tk.Button (root, text='Exit Application', command=root.destroy) 
+#canvas1.create_window(170, 130, window=button1) 
+
+csvfile = open(root.filename, 'w', newline='')
 csvwriter = csv.writer(csvfile, delimiter=',',
                             quotechar='|', quoting=csv.QUOTE_MINIMAL)
 
@@ -13,40 +27,40 @@ csvwriter.writerow(['Name','Type','Data'])
 aReg = ConnectRegistry(None,HKEY_LOCAL_MACHINE)
 
 aKey = OpenKey(aReg, r"SOFTWARE\WOW6432Node\Lenel\OnGuard")
-#print(QueryValueEx(aKey,"Name"))
+
 try:
     i = 0
     while 1:
         name, data, rtype = EnumValue(aKey, i)
-        #print(data)
         RegistryType = ''
         if (rtype == 1):
-        	RegistryType = 'REG_SZ'
+            RegistryType = 'REG_SZ'
         elif (rtype == 2):
-        	RegistryType = 'REG_EXPAND_SZ'
+            RegistryType = 'REG_EXPAND_SZ'
         elif (rtype == 3):
-        	RegistryType = '(HEX STRING)'
-        	#data = chr(data)
+            RegistryType = 'REG_BINARY'
+            data = '(HEX STRING)'
         elif (rtype == 4):
-        	RegistryType = 'REG_DWORD'
+            RegistryType = 'REG_DWORD'
         elif (rtype == 5):
-        	RegistryType = 'REG_DWORD_BIG_ENDIAN'
+            RegistryType = 'REG_DWORD_BIG_ENDIAN'
         elif (rtype == 6):
-        	RegistryType = 'REG_LINK'
+            RegistryType = 'REG_LINK'
         elif (rtype == 7):
-        	RegistryType = 'REG_MULTI_SZ'
+            RegistryType = 'REG_MULTI_SZ'
         elif (rtype == 8):
-        	RegistryType = 'REG_RESOURCE_LIST'
+            RegistryType = 'REG_RESOURCE_LIST'
         elif (rtype == 12):
-        	RegistryType = 'REG_QWORD'
+            RegistryType = 'REG_QWORD'
         else:
-        	RegistryType = 'REG_NONE'
+            RegistryType = 'REG_NONE'
         
         if (name == ""):
-        	name = "(Default)"
+            name = "(Default)"
         csvwriter.writerow([name,RegistryType,data])
-        #print(RegistryType)
-        #print(name, data, rtype)
+
         i += 1
 except WindowsError:
     print()
+
+root.mainloop()
