@@ -5,8 +5,22 @@ import os
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import *
+import wmi
+
+ip = "10.139.2.105"
+username = "DVT-SECAS-016\\administrator"
+password = "Welcome1"
+from socket import *
+try:
+    print("Establishing connection to %s" %ip)
+    connection = wmi.WMI(ip, user=username, password=password).StdRegProv
+    aReg = connection.ConnectRegistry(None,HKEY_LOCAL_MACHINE)
+    print("Connection established")
+except wmi.x_wmi:
+    print("Your Username and Password of "+getfqdn(ip)+" are wrong.")
 
 root= tk.Tk() 
+
    
 #canvas1 = tk.Canvas(root, width = 450, height = 500) 
 #canvas1.pack()
@@ -24,9 +38,9 @@ csvwriter = csv.writer(csvfile, delimiter=',',
 csvwriter.writerow(['Name','Type','Data'])
 
 """print r"*** Reading from SOFTWARE\Microsoft\Windows\CurrentVersion\Run ***" """
-aReg = ConnectRegistry(None,HKEY_LOCAL_MACHINE)
+#aReg = ConnectRegistry(connection,HKEY_LOCAL_MACHINE)
 
-aKey = OpenKey(aReg, r"SOFTWARE\WOW6432Node\Lenel\OnGuard")
+aKey = OpenKey(aReg, r"SOFTWARE\WOW6432Node\Microsoft\RADAR\CommitExhaustion\Settings")
 
 try:
     i = 0
