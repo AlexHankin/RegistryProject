@@ -15,7 +15,7 @@ import wmi
 #	Created by Alex Hankin & Santiago Loane  #
 #	for Northland Controls 11/5/18			 #
 #											 #
-#	Ver. 1.4 		11/8/18					 #
+#	Ver. 1.4.1 		11/8/18					 #
 ##############################################
 
 root= tk.Tk() 
