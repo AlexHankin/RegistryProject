@@ -25,7 +25,7 @@ root= tk.Tk()
 #canvas1 = tk.Canvas(root, width = 450, height = 500) 
 #canvas1.pack()
 
-root.filename = filedialog.asksaveasfilename(initialdir = "/",title = "Choose name of CSV file, and where it should be saved",defaultextension = ".csv",filetypes = (("CSV files","*.csv"),("all files","*.*")))
+root.filename = filedialog.asksaveasfilename(initialdir = "/",title = "Choose Name of CSV file, and Where it should be saved",defaultextension = ".csv",filetypes = (("CSV files","*.csv"),("all files","*.*")))
 print(root.filename)
       
 #button1 = tk.Button (root, text='Exit Application', command=root.destroy) 
@@ -38,7 +38,7 @@ csvwriter = csv.writer(csvfile, delimiter=',',
 csvwriter.writerow(['Name','Type','Data'])
 
 """print r"*** Reading from SOFTWARE\Microsoft\Windows\CurrentVersion\Run ***" """
-#aReg = ConnectRegistry(connection,HKEY_LOCAL_MACHINE)
+aReg = ConnectRegistry(connection,HKEY_LOCAL_MACHINE)
 
 aKey = OpenKey(aReg, r"SOFTWARE\WOW6432Node\Microsoft\RADAR\CommitExhaustion\Settings")
 

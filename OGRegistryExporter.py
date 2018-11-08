@@ -194,7 +194,7 @@ def remotemain():
 
 	except wmi.x_wmi:
 		Comments.delete('1.0', END)
-		Comments.insert(INSERT, "Authentication Failed. Check username and password")  
+		Comments.insert(INSERT, "Authentication Failed. Check credentials and/or network connection")  
 
 
 
