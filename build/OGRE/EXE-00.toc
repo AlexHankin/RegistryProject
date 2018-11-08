@@ -27,6 +27,9 @@
   ('pyiboot01_bootstrap',
    'c:\\users\\sloane\\appdata\\local\\programs\\python\\python36\\lib\\site-packages\\PyInstaller\\loader\\pyiboot01_bootstrap.py',
    'PYSOURCE'),
+  ('pyi_rth_win32comgenpy',
+   'c:\\users\\sloane\\appdata\\local\\programs\\python\\python36\\lib\\site-packages\\PyInstaller\\loader\\rthooks\\pyi_rth_win32comgenpy.py',
+   'PYSOURCE'),
   ('pyi_rth__tkinter',
    'c:\\users\\sloane\\appdata\\local\\programs\\python\\python36\\lib\\site-packages\\PyInstaller\\loader\\rthooks\\pyi_rth__tkinter.py',
    'PYSOURCE'),
@@ -39,7 +42,7 @@
  [],
  False,
  False,
- 1541700928,
+ 1541705206,
  [('runw.exe',
    'c:\\users\\sloane\\appdata\\local\\programs\\python\\python36\\lib\\site-packages\\PyInstaller\\bootloader\\Windows-64bit\\runw.exe',
    'EXECUTABLE')])
