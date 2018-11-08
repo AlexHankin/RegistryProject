@@ -248,7 +248,7 @@ def remotemain():
 			Comments.delete('1.0', END)
 			Comments.insert(INSERT, "Registry exported successfully")
 			comp.set(1)
-			#enableLogs()
+			enableLogs()
 		else:
 			Comments.delete('1.0', END)
 			Comments.insert(INSERT, "No registries in the OnGuard directory on this \nsystem")
