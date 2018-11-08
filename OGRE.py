@@ -1,11 +1,22 @@
 #!/usr/bin/env python3
 from winreg import *
-import csv
-import os
+import csv, os, time
+from os import listdir
+from os.path import isfile, join
+#from stat import *
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import *
 import wmi
+
+##############################################
+#	OnGuard Registry Exporter				 #
+#											 #
+#	Created by Alex Hankin & Santiago Loane  #
+#	for Northland Controls 11/5/18			 #
+#											 #
+#	Ver. 1.4 		11/8/18					 #
+##############################################
 
 root= tk.Tk() 
 root.title("OnGuard Registry Exporter")
@@ -85,8 +96,9 @@ def fileprompt():
 	updateEntry(str(root.filename))
 def logprompt():
 	updateLogEntry(str(filedialog.asksaveasfilename(initialdir = "/",title = "Choose Name of CSV file, and Where it should be saved",defaultextension = ".csv",filetypes = (("CSV files","*.csv"),("all files","*.*")))))
-	#root.filename = filedialog.asksaveasfilename(initialdir = "/",title = "Choose Name of CSV file, and Where it should be saved",defaultextension = ".csv",filetypes = (("CSV files","*.csv"),("all files","*.*")))
-	#updateLogEntry(str(root.filename))
+
+def getfiles(dirPath):
+	return [f for f in listdir(dirPath) if isfile(join(dirPath,f)) and f[-4:] == ".log"]
 
 local = Radiobutton(root, text="Export from Local Computer", variable=v, value=1,command=disableEntry)
 remote = Radiobutton(root, text="Export from Remote Computer", variable=v, value=2,command=enableEntry)
@@ -179,7 +191,7 @@ def localmain():
 		print()
 		if(i > 0):
 			Comments.delete('1.0', END)
-			Comments.insert(INSERT, "File Created Successfully")
+			Comments.insert(INSERT, "Registry exported successfully")
 			comp.set(1)
 			enableLogs()
 		else:
@@ -234,7 +246,7 @@ def remotemain():
 
 		if(len(names) > 0):
 			Comments.delete('1.0', END)
-			Comments.insert(INSERT, "File Created Successfully")
+			Comments.insert(INSERT, "Registry exported successfully")
 			comp.set(1)
 			#enableLogs()
 		else:
@@ -244,6 +256,43 @@ def remotemain():
 	except wmi.x_wmi:
 		Comments.delete('1.0', END)
 		Comments.insert(INSERT, "Authentication Failed. Check credentials and/or network connection")  
+
+def getlogs():
+	#tzone = time.tzname[time.daylight]
+	try:
+		csvlogfile = open(myLogs.get(), 'w', newline='')
+		csvlogwriter = csv.writer(csvlogfile, delimiter=',',
+								quotechar='|', quoting=csv.QUOTE_MINIMAL)
+		csvlogwriter.writerow(['Name','Size (MB)','Last Modified (local time)'])
+
+		exportfile = open(myFile.get(), 'r',newline='')
+		exportvals = csv.reader(exportfile, delimiter=',')
+		temp = [row[2] for row in exportvals if row[0] == "LogFilePath"]
+		logDir = temp[0]
+		LogComments.delete('1.0', END)
+		LogComments.insert(INSERT, "Exporting from %s\n" %logDir)
+
+		logFiles = getfiles(logDir)
+		for filename in logFiles:
+			#metadata = (mode, ino, dev, nlink, uid, gid, size, atime, mtime, ctime)
+			try:
+				_, _, _, _, _, _, logSize, _, logModTime, _ = os.stat(logDir+"/"+filename)
+			except IOError:
+				logSize, logModTime = "error", "error"
+			csvlogwriter.writerow([filename,round(logSize/1024/1024,3),time.asctime(time.localtime(logModTime))])
+
+		if len(logFiles)>0:
+			LogComments.insert(INSERT, "Logs exported successfully")
+		else:
+			LogComments.insert(INSERT, "No .log files found in this directory")
+
+
+		#aReg = ConnectRegistry(None,HKEY_LOCAL_MACHINE)
+
+		#aKey = OpenKey(aReg, r"SOFTWARE\WOW6432Node\Lenel\OnGuard")
+	except FileNotFoundError:
+		#LogComments.delete('1.0', END)
+		LogComments.insert(INSERT, "No such file or directory on this system")
 
 def main():
 	if (v.get()==1):
@@ -267,7 +316,7 @@ mainButton = tk.Button (root, text='Export and Create File',command=main)
 mainButton.pack()
 mainButton.place(x=145,y=220,anchor=NW)
 
-logButton = tk.Button (root, text='Export Log Directory Metadata',command=main,state=DISABLED) 
+logButton = tk.Button (root, text='Export Log Directory Metadata',command=getlogs,state=DISABLED) 
 #canvas1.create_window(x=150,y=160, window=button1)
 logButton.pack()
 logButton.place(x=145,y=335,anchor=NW)
@@ -277,3 +326,5 @@ northlandLabel.pack()
 northlandLabel.place(x=325,y=450,anchor=NW)
 
 root.mainloop()
+
+# To build, run: pyinstaller OGRE.py --windowed
