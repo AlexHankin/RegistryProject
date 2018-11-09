@@ -1,10 +1,10 @@
-('..\\RegistryProject\\img',
+('..\\RegistryProject\\bin\\img',
  'prefix=img\\',
  [],
  'DATA',
  [('prefix=img\\northland.ico',
-   '..\\RegistryProject\\img\\northland.ico',
+   '..\\RegistryProject\\bin\\img\\northland.ico',
    'DATA'),
   ('prefix=img\\northland.png',
-   '..\\RegistryProject\\img\\northland.png',
+   '..\\RegistryProject\\bin\\img\\northland.png',
    'DATA')])

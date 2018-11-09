@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from winreg import *
-import csv, os, time
+import csv, os, time, sys
 from os import listdir
 from os.path import isfile, join
 #from stat import *
@@ -15,11 +15,18 @@ import wmi
 #	Created by Alex Hankin & Santiago Loane  #
 #	for Northland Controls 11/5/18			 #
 #											 #
-#	Ver. 1.4.2b 		11/8/18				 #
+#	Ver. 1.4.2 		11/9/18				 	 #
 ##############################################
 
+if getattr(sys, 'frozen', False):
+	# running in a bundle
+	bundle_dir = sys._MEIPASS
+else:
+	# running in a python environment
+	bundle_dir = os.path.dirname(os.path.abspath(__file__))
+
 root= tk.Tk() 
-root.iconbitmap(default="./img/northland.ico")
+root.iconbitmap(default="%s\\img\\northland.ico"%bundle_dir)
 root.title("OnGuard Registry Exporter")
 
 canvas1 = tk.Canvas(root, width = 480, height = 480) 

@@ -2,11 +2,11 @@
 
 block_cipher = None
 
-
+added_files = [('.\\img','img')]
 a = Analysis(['OGRE.py'],
              #pathex=['C:\\Users\\sloane\\Documents\\RegistryProject'],
              binaries=[],
-             datas=[],
+             datas=added_files,
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],
@@ -20,7 +20,6 @@ pyz = PYZ(a.pure, a.zipped_data,
 exe = EXE(pyz,
           a.scripts,
           a.binaries,
-          Tree('..\\RegistryProject\\img','prefix=img\\'),
           a.zipfiles,
           a.datas,
           [],
@@ -30,4 +29,4 @@ exe = EXE(pyz,
           strip=False,
           upx=True,
           runtime_tmpdir=None,
-          console=False , icon='.\\img\\northland.ico')
+          console=False , icon='.\\bin\\img\\northland.ico')
