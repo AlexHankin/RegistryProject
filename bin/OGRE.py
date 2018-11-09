@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from winreg import *
-import csv, os, time, sys
+import csv, os, time
 from os import listdir
 from os.path import isfile, join
 #from stat import *
