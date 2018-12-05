@@ -263,9 +263,16 @@ def remotemain():
 
 	except wmi.x_wmi:
 		Comments.delete('1.0', END)
-		Comments.insert(INSERT, "Authentication Failed. Check credentials and/or network connection")  
+		Comments.insert(INSERT, "Authentication Failed. Check credentials and/or network connection") 
 
 def getlogs():
+	if (v.get()==1):
+		localgetlogs()
+
+	elif (v.get()==2):
+		remotegetlogs()
+
+def localgetlogs():
 	#tzone = time.tzname[time.daylight]
 	try:
 		csvlogfile = open(myLogs.get(), 'w', newline='')
@@ -279,6 +286,50 @@ def getlogs():
 		logDir = temp[0]
 		LogComments.delete('1.0', END)
 		LogComments.insert(INSERT, "Exporting from %s\n" %logDir)
+		logFiles = getfiles(logDir)
+		for filename in logFiles:
+			#metadata = (mode, ino, dev, nlink, uid, gid, size, atime, mtime, ctime)
+			try:
+				_, _, _, _, _, _, logSize, _, logModTime, _ = os.stat(logDir+"/"+filename)
+			except IOError:
+				logSize, logModTime = "error", "error"
+			csvlogwriter.writerow([filename,round(logSize/1024/1024,3),time.asctime(time.localtime(logModTime))])
+
+		if len(logFiles)>0:
+			LogComments.insert(INSERT, "Logs exported successfully")
+		else:
+			LogComments.insert(INSERT, "No .log files found in this directory")
+
+
+		#aReg = ConnectRegistry(None,HKEY_LOCAL_MACHINE)
+
+		#aKey = OpenKey(aReg, r"SOFTWARE\WOW6432Node\Lenel\OnGuard")
+	except FileNotFoundError:
+		#LogComments.delete('1.0', END)
+		LogComments.insert(INSERT, "No such file or directory on this system")
+
+def remotegetlogs():
+	#tzone = time.tzname[time.daylight]
+	try:
+		csvlogfile = open(myLogs.get(), 'w', newline='')
+		csvlogwriter = csv.writer(csvlogfile, delimiter=',',
+								quotechar='|', quoting=csv.QUOTE_MINIMAL)
+		csvlogwriter.writerow(['Name','Size (MB)','Last Modified (local time)'])
+
+		exportfile = open(myFile.get(), 'r',newline='')
+		exportvals = csv.reader(exportfile, delimiter=',')
+		temp = [row[2] for row in exportvals if row[0] == "LogFilePath"]
+		logDir = temp[0]
+		LogComments.delete('1.0', END)
+		LogComments.insert(INSERT, "Exporting from %s\n" %logDir)
+
+		newDir = ""
+		for char in logDir:
+			if char == "\\":
+				newDir = newDir + "\\\\\\\\"
+			else:
+				newDir = newDir + char
+		
 
 		logFiles = getfiles(logDir)
 		for filename in logFiles:
