@@ -1,0 +1,33 @@
+Name,Type,Data
+InstallInProgress,REG_DWORD,0
+AlarmMonitoring,REG_SZ,Installed
+DatabaseType,REG_SZ,SQL
+IDManagement,REG_SZ,Installed
+MONITORINGCLIENT,REG_SZ,0
+AppConfigInstalled,REG_SZ,1
+SkipLocalSystemAuthentication,REG_DWORD,1
+(Default),REG_SZ,
+Video Renderer Mode,REG_DWORD,0
+BADGINGCLIENT,REG_SZ,0
+ProductVersion,REG_SZ,7.4.457.0
+BadgeDesigner,REG_SZ,Installed
+FormsDesigner,REG_SZ,Installed
+MapDesigner,REG_SZ,Installed
+BranchCompatibility,REG_SZ,Dillinger
+InstalledProductName,REG_SZ,OnGuard 7.4 Enterprise
+OnGuardVersion,REG_SZ,5.12
+InstallationType,REG_SZ,102
+InstallPath,REG_SZ,C:\Program Files (x86)\OnGuard\
+HardwarePrefix,REG_SZ,LNL
+SystemAdmin,REG_SZ,Installed
+LogFilePath,REG_SZ,C:\ProgramData\Lnl\logs
+MenuFolder,REG_SZ,OnGuard 7.4 Enterprise
+ProductCode,REG_SZ,{EC962DD8-814C-4A12-B5AB-32E352FB8E8A}
+ApplicationUsers,REG_SZ,AllUsers
+CompatibleLanguagePack,REG_SZ,511200
+CompatibleAccessoryPack,REG_SZ,510300
+Enterprise,REG_BINARY,(HEX STRING)
+VisitorMan,REG_SZ,Installed
+AreaAccessMan,REG_SZ,Installed
+VideoViewer,REG_SZ,Installed
+InstalledProductNameNoVersion,REG_SZ,OnGuard
