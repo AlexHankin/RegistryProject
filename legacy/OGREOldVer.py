@@ -32,7 +32,7 @@ root= tk.Tk()
 root.iconbitmap(default="%s\\img\\northland.ico"%bundle_dir)
 root.title("OnGuard Registry Exporter")
 
-canvas1 = tk.Canvas(root, width = 480, height = 480) 
+canvas1 = tk.Canvas(root, width = 480, height = 450) 
 canvas1.pack()
 
 #root.filename = filedialog.asksaveasfilename(initialdir = "/",title = "Choose name of CSV file, and where it should be saved",defaultextension = ".csv",filetypes = (("CSV files","*.csv"),("all files","*.*")))
@@ -82,6 +82,7 @@ def toggleLogPath():
 	if lv == 0:
 		myLogs.configure(state=DISABLED)
 		logBrowse.configure(state=DISABLED)
+		LogFileLabel.pack_forget()
 	else:
 		myLogs.configure(state=NORMAL)
 		logBrowse.configure(state=NORMAL)
@@ -94,9 +95,12 @@ def enableLogs():
 	cv = comp.get()
 	if lv == 1 and cv == 1:
 		logButton.configure(state=NORMAL)
+		LogFileLabel.pack()
+		LogFileLabel.place(y=190,anchor=NW)
 		
 	else:
 		logButton.configure(state=DISABLED)
+		LogFileLabel.pack_forget()
 	logButton.update()
 
 def updateEntry(myFilename):
@@ -149,8 +153,6 @@ FileLabel.place(y=160,anchor=NW)
 
 myLogs.pack()
 myLogs.place(x=100,y=190,anchor=NW)
-LogFileLabel.pack()
-LogFileLabel.place(y=190,anchor=NW)
 
 Comments.pack()
 Comments.place(x=70,y=260,anchor=NW)
@@ -536,7 +538,7 @@ logButton.place(x=145,y=335,anchor=NW)
 
 northlandLabel = Label(text="Northland Control Systems", fg='firebrick3')
 northlandLabel.pack()
-northlandLabel.place(x=325,y=450,anchor=NW)
+northlandLabel.place(x=325,y=486,anchor=NW)
 
 thread = Threading()
 

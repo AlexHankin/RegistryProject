@@ -9,6 +9,9 @@ from tkinter import filedialog,font,ttk
 from tkinter import *
 import wmi
 from idlelib.redirector import WidgetRedirector
+from datetime import date
+import threading
+import subprocess
 
 ##############################################
 #	OnGuard Registry Exporter				 #
@@ -96,7 +99,7 @@ s.theme_use(themename="Northland")
 root.iconbitmap(default="%s\\img\\northland.ico"%bundle_dir)
 root.title("OnGuard Registry Exporter")
 
-canvas1 = tk.Canvas(root, width = 500, height = 500)
+canvas1 = tk.Canvas(root, width = 500, height = 492)
 canvas1.config(background=bg_color,bd=0,highlightthickness=0)
 
 canvas1.pack()
@@ -109,6 +112,11 @@ v.set(1)
 comp = IntVar()
 comp.set(0)
 logVar = IntVar()
+
+remoteDirectory = ""
+global output
+global csvlogwriter
+output = ""
 
 myIP = ttk.Entry(width=30, state=DISABLED, style="Northland.TEntry")
 myUser = ttk.Entry(width=30, state=DISABLED, style="Northland.TEntry")
@@ -123,6 +131,7 @@ LogFileLabel = ttk.Label(text="Save Log CSV as:",style="Northland.TLabel")
 ipLabel = ttk.Label(text="Name/IP:",style="Northland.TLabel")
 UserLabel = ttk.Label(text="Username:",style="Northland.TLabel")
 PassLabel = ttk.Label(text="Password:",style="Northland.TLabel")
+LogNotice = ttk.Label(text="*For Security Purposes, \ncredentials will be required again",style="Northland.TLabel")
 
 def enableEntry():
 	myIP.configure(state=NORMAL)
@@ -145,9 +154,12 @@ def toggleLogPath():
 	if lv == 0:
 		myLogs.configure(state=DISABLED)
 		logBrowse.configure(state=DISABLED)
+		LogNotice.configure(state=DISABLED)
+		LogNotice.update()
 	else:
 		myLogs.configure(state=NORMAL)
 		logBrowse.configure(state=NORMAL)
+
 	myLogs.update()
 	logBrowse.update()
 	enableLogs()
@@ -158,10 +170,16 @@ def enableLogs():
 	if lv == 1 and cv == 1:
 		logButton.configure(state=NORMAL)
 		LogComments.configure(state=NORMAL,bg=read_only_color)
+		if (v.get()==2):
+			LogNotice.pack()
+			LogNotice.place(x=260,y=332,anchor=NW)
+
 		
 	else:
 		logButton.configure(state=DISABLED)
 		LogComments.configure(state=DISABLED,bg=inactive_field_color)
+		LogNotice.pack_forget()
+		LogNotice.update()
 	logButton.update()
 
 def updateEntry(myFilename):
@@ -220,7 +238,90 @@ LogFileLabel.place(y=190,anchor=NW)
 Comments.pack()
 Comments.place(x=70,y=260,anchor=NW)
 LogComments.pack()
-LogComments.place(x=70,y=370,anchor=NW)
+LogComments.place(x=70,y=373,anchor=NW)
+
+class Threading(object):
+	""" 
+	The run() method will be started and it will run in the background
+	until the application exits.
+	"""
+
+	def __init__(self, interval=1):
+
+		self.interval = interval
+		newDir = ""
+		thread = threading.Thread(target=self.run, args=())
+		thread.daemon = True                            # Daemonize thread
+		thread.start()
+
+	def run(self):
+		""" Method that runs forever """
+		global newDir
+		global output
+		global remoteDirectory
+		filler = 0
+		while True:
+			if(remoteDirectory == ""):
+				filler = 1
+
+			else:
+				csvlogfile = open(myLogs.get(), 'w', newline='')
+				csvlogwriter = csv.writer(csvlogfile, delimiter=',',
+								quotechar='|', quoting=csv.QUOTE_MINIMAL)
+
+				cmdLine = "Get-WmiObject CIM_DataFile -Computername Kopprdlenapp01 -Credential GSICCORP\\ahankin -filter `  \'Drive=\"C:\" and Path=\"" + remoteDirectory + "\" and Extension=\"log\"\' | Format-List *"
+
+				p = subprocess.Popen(["powershell.exe",cmdLine], shell=True, stdout=subprocess.PIPE)
+				output = p.communicate()[0].decode("utf-8")
+
+				infoList = output.splitlines()
+				filteredList = []
+				csvlogwriter.writerow(['Name','Size (MB)','Last Modified (Time Zone Respective to Remote Destination)'])
+
+
+				for info in infoList:
+					if("Name                  :" not in info):
+						if("LastModified" not in info):
+							if("FileSize" not in info):
+								info = None
+							else:
+								filteredList.append(info)
+						else:
+							filteredList.append(info)
+					else:
+						filteredList.append(info)
+				shift = 0
+				newEntry = []
+				allEntries = []
+				
+				for info in filteredList:
+					if(shift == 3):
+						shift = 0
+						allEntries.append(newEntry)
+						newEntry = []
+					newEntry.append(info.split(': ', 1)[-1])
+					shift += 1
+				allEntries.append(newEntry)
+
+				try:
+					for entry in allEntries:
+						entry[0] = entry[0].split('\\', -1)[-1]
+						entry[1] = round(int(entry[1])/1024/1024,3)
+						if(entry[1] == 0.0):
+							entry[1] = "<0.001"
+						entry[2] = entry[2].split('.', -1)[0]
+						timeString = str(entry[2])
+						timeTuple = (int(timeString[0:4]),int(timeString[4:6]),int(timeString[6:8]),int(timeString[8:10]),int(timeString[10:12]),int(timeString[12:14]),date(int(timeString[0:4]),int(timeString[4:6]),int(timeString[6:8])).weekday(),0,-1)
+						entry[2] = time.asctime(timeTuple)
+						csvlogwriter.writerow(entry)
+					LogComments.insert(INSERT, "Logs exported successfully")
+					#remoteDirectory = ""
+					csvlogfile.close()
+				except IndexError:
+					LogComments.insert(INSERT, "Authentication Failed. Check both credential submissions and/or network connection")
+			# Do something
+			remoteDirectory = ""
+			time.sleep(self.interval)
 
 def localmain():
 	hasKey = False
@@ -368,7 +469,10 @@ def localgetlogs():
 				_, _, _, _, _, _, logSize, _, logModTime, _ = os.stat(logDir+"/"+filename)
 			except IOError:
 				logSize, logModTime = "error", "error"
-			csvlogwriter.writerow([filename,round(logSize/1024/1024,3),time.asctime(time.localtime(logModTime))])
+			newLogSize = round(logSize/1024/1024,3)
+			if(newLogSize == 0.0):
+				newLogSize = "<0.001"
+			csvlogwriter.writerow([filename,newLogSize,time.asctime(time.localtime(logModTime))])
 
 		if len(logFiles)>0:
 			LogComments.insert(INSERT, "Logs exported successfully")
@@ -385,11 +489,12 @@ def localgetlogs():
 
 def remotegetlogs():
 	#tzone = time.tzname[time.daylight]
+	global remoteDirectory
 	try:
-		csvlogfile = open(myLogs.get(), 'w', newline='')
-		csvlogwriter = csv.writer(csvlogfile, delimiter=',',
-								quotechar='|', quoting=csv.QUOTE_MINIMAL)
-		csvlogwriter.writerow(['Name','Size (MB)','Last Modified (local time)'])
+		#csvlogfile = open(myLogs.get(), 'w', newline='')
+		#csvlogwriter = csv.writer(csvlogfile, delimiter=',',
+		#						quotechar='|', quoting=csv.QUOTE_MINIMAL)
+		#csvlogwriter.writerow(['Name','Size (MB)','Last Modified (local time)'])
 
 		exportfile = open(myFile.get(), 'r',newline='')
 		exportvals = csv.reader(exportfile, delimiter=',')
@@ -401,29 +506,13 @@ def remotegetlogs():
 		newDir = ""
 		for char in logDir:
 			if char == "\\":
-				newDir = newDir + "\\\\\\\\"
+				newDir = newDir + "\\\\"
 			else:
 				newDir = newDir + char
+		newDir = newDir[2:] + "\\\\"
+
+		remoteDirectory = newDir
 		
-
-		logFiles = getfiles(logDir)
-		for filename in logFiles:
-			#metadata = (mode, ino, dev, nlink, uid, gid, size, atime, mtime, ctime)
-			try:
-				_, _, _, _, _, _, logSize, _, logModTime, _ = os.stat(logDir+"/"+filename)
-			except IOError:
-				logSize, logModTime = "error", "error"
-			csvlogwriter.writerow([filename,round(logSize/1024/1024,3),time.asctime(time.localtime(logModTime))])
-
-		if len(logFiles)>0:
-			LogComments.insert(INSERT, "Logs exported successfully")
-		else:
-			LogComments.insert(INSERT, "No .log files found in this directory")
-
-
-		#aReg = ConnectRegistry(None,HKEY_LOCAL_MACHINE)
-
-		#aKey = OpenKey(aReg, r"SOFTWARE\WOW6432Node\Lenel\OnGuard")
 	except FileNotFoundError:
 		#LogComments.delete('1.0', END)
 		LogComments.insert(INSERT, "No such file or directory on this system")
@@ -468,6 +557,8 @@ logButton.place(x=lbx+bw,y=lby+bw,anchor=NW)
 northlandLabel = Label(text="Northland Control Systems",fg=fg_color,bg=bg_color)
 northlandLabel.pack()
 northlandLabel.place(x=345,y=470,anchor=NW)
+
+thread = Threading()
 
 root.mainloop()
 
