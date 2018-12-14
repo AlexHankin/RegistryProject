@@ -2,7 +2,8 @@ import subprocess
 import time
 from datetime import date
 
-def main():
+
+def remoter():
 	url = "Get-WmiObject CIM_DataFile -Computername Kopprdlenapp01 -Credential GSICCORP\\ahankin -filter `  \'Drive=\"C:\" and Path=\"\\\\Program Files (x86)\\\\OnGuard\\\\logs\\\\\" and Extension=\"log\"\' | Format-List *"
 
 	p = subprocess.Popen(["powershell.exe",url], shell=True, stdout=subprocess.PIPE)
@@ -46,4 +47,3 @@ def main():
 		timeTuple = (int(timeString[0:4]),int(timeString[4:6]),int(timeString[6:8]),int(timeString[8:10]),int(timeString[10:12]),int(timeString[12:14]),date(int(timeString[0:4]),int(timeString[4:6]),int(timeString[6:8])).weekday(),0,-1)
 		entry[2] = time.asctime(timeTuple)
 		print(allEntries)
-main()
