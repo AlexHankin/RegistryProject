@@ -19,7 +19,7 @@ import subprocess
 #	Created by Alex Hankin & Santiago Loane  #
 #	for Northland Controls 11/5/18			 #
 #											 #
-#	Ver. 1.5 		12/11/18				 #
+#	Ver. 1.6.1 		12/14/18				 #
 ##############################################
 
 if getattr(sys, 'frozen', False):
@@ -128,7 +128,7 @@ LogComments = ReadOnlyText(root,height=4, width=50,highlightthickness=1,highligh
 
 FileLabel = ttk.Label(text="Save CSV as:",style="Northland.TLabel")
 LogFileLabel = ttk.Label(text="Save Log CSV as:",style="Northland.TLabel")
-ipLabel = ttk.Label(text="Name/IP:",style="Northland.TLabel")
+ipLabel = ttk.Label(text="Domain/IP:",style="Northland.TLabel")
 UserLabel = ttk.Label(text="Username:",style="Northland.TLabel")
 PassLabel = ttk.Label(text="Password:",style="Northland.TLabel")
 LogNotice = ttk.Label(text="*For Security Purposes, \ncredentials will be required again",style="Northland.TLabel")
@@ -461,7 +461,7 @@ def localgetlogs():
 		temp = [row[2] for row in exportvals if row[0] == "LogFilePath"]
 		logDir = temp[0]
 		LogComments.delete('1.0', END)
-		LogComments.insert(INSERT, "Exporting from %s\n" %logDir)
+		LogComments.insert(INSERT, "Exporting from:\n%s\n" %logDir)
 		logFiles = getfiles(logDir)
 		for filename in logFiles:
 			#metadata = (mode, ino, dev, nlink, uid, gid, size, atime, mtime, ctime)
@@ -501,7 +501,7 @@ def remotegetlogs():
 		temp = [row[2] for row in exportvals if row[0] == "LogFilePath"]
 		logDir = temp[0]
 		LogComments.delete('1.0', END)
-		LogComments.insert(INSERT, "Exporting from %s\n" %logDir)
+		LogComments.insert(INSERT, "Exporting from:\n%s::%s\n" %(myIP.get(),logDir))
 
 		newDir = ""
 		for char in logDir:
