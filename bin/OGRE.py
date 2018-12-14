@@ -261,6 +261,7 @@ class Threading(object):
 		global remoteDirectory
 		filler = 0
 		while True:
+
 			if(remoteDirectory == ""):
 				filler = 1
 
@@ -270,8 +271,7 @@ class Threading(object):
 								quotechar='|', quoting=csv.QUOTE_MINIMAL)
 
 				cmdLine = "Get-WmiObject CIM_DataFile -Computername Kopprdlenapp01 -Credential GSICCORP\\ahankin -filter `  \'Drive=\"C:\" and Path=\"" + remoteDirectory + "\" and Extension=\"log\"\' | Format-List *"
-
-				p = subprocess.Popen(["powershell.exe",cmdLine], shell=True, stdout=subprocess.PIPE)
+				p = subprocess.Popen(["powershell.exe",cmdLine], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
 				output = p.communicate()[0].decode("utf-8")
 
 				infoList = output.splitlines()
