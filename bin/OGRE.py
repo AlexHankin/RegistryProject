@@ -96,7 +96,7 @@ s.theme_create("Northland",parent='clam',settings=T)
 s.theme_use(themename="Northland")
 ## end style definition
 
-root.iconbitmap(default="%s\\img\\northland.ico"%bundle_dir)
+root.iconbitmap("%s\\img\\northland.ico"%bundle_dir)
 root.title("OnGuard Registry Exporter")
 
 canvas1 = tk.Canvas(root, width = 500, height = 492)
@@ -270,7 +270,7 @@ class Threading(object):
 				csvlogwriter = csv.writer(csvlogfile, delimiter=',',
 								quotechar='|', quoting=csv.QUOTE_MINIMAL)
 
-				cmdLine = "Get-WmiObject CIM_DataFile -Computername Kopprdlenapp01 -Credential GSICCORP\\ahankin -filter `  \'Drive=\"C:\" and Path=\"" + remoteDirectory + "\" and Extension=\"log\"\' | Format-List *"
+				cmdLine = "Get-WmiObject CIM_DataFile -Computername " + myIP.get() + " -Credential User... -filter `  \'Drive=\"C:\" and Path=\"" + remoteDirectory + "\" and Extension=\"log\"\' | Format-List *"
 				p = subprocess.Popen(["powershell.exe",cmdLine], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
 				output = p.communicate()[0].decode("utf-8")
 
