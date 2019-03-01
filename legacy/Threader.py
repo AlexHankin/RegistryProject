@@ -6,7 +6,7 @@ newDir = ""
 global output
 output = ""
 
-class ThreadingExample(object):
+class Threading(object):
     """ Threading example class
     The run() method will be started and it will run in the background
     until the application exits.
