@@ -8,6 +8,7 @@ import tkinter as tk
 from tkinter import filedialog,font,ttk
 from tkinter import *
 import wmi
+import psutil
 from idlelib.redirector import WidgetRedirector
 from datetime import date
 import threading
@@ -19,7 +20,7 @@ import subprocess
 #	Created by Alex Hankin & Santiago Loane  #
 #	for Northland Controls 11/5/18			 #
 #											 #
-#	Ver. 1.6.1 		12/14/18				 #
+#	Ver. 1.8.0 		10/28/19				 #
 ##############################################
 
 if getattr(sys, 'frozen', False):
@@ -106,6 +107,11 @@ canvas1.pack()
 
 #root.filename = filedialog.asksaveasfilename(initialdir = "/",title = "Choose name of CSV file, and where it should be saved",defaultextension = ".csv",filetypes = (("CSV files","*.csv"),("all files","*.*")))
 #print(root.filename)
+
+lenel_services = ['LS Client Update Server','LS Communication Server','LS Config Download Service',	'LS DataConduIT Message Queue Server','LS DataConduIT Service',\
+	'LS DataExchange Server','LS Event Context Provider','LS Global Output Server','LS ID Allocation','LS License Server','LS Linkage Server','LS Login Driver',\
+	'LS Message Broker','LS Open Access','LS Open Access Web Proxy','LS PTZ Tour Server','LS Replicator','LS Site Publication Server','LS Video Archive Server',\
+	'LS Web Event Bridge','LS Web Service']
 
 v = IntVar()
 v.set(1)
@@ -444,7 +450,6 @@ def remotemain():
 def getlogs():
 	if (v.get()==1):
 		localgetlogs()
-
 	elif (v.get()==2):
 		remotegetlogs()
 
@@ -517,6 +522,32 @@ def remotegetlogs():
 		#LogComments.delete('1.0', END)
 		LogComments.insert(INSERT, "No such file or directory on this system")
 
+def getservices():
+	if (v.get() == 1):
+		serv_res = localgetservices()
+	elif (v.get() == 2):
+		serv_res = remotegetservices()
+
+	print(serv_res)
+	return serv_res
+
+def localgetservices():
+	return [(serviceName,psutil.win_service_get(serviceName)['status'] == 'running') for serviceName in lenel_services]
+
+def remotegetservices():
+	ip = myIP.get()
+	username = myUser.get()
+	password = myPass.get()
+
+	try:
+		c = wmi.WMI(computer=ip, user=username, password=password)
+
+		# Below will output all possible service names
+		return [(service.Name,service.State == 'Running') for service in [s for s in c.Win32_Service() if s.Name in lenel_services]]
+
+	except wmi.x_wmi:
+		print("Authentication Failed. Check credentials and/or network connection") 
+
 def main():
 	if (v.get()==1):
 		localmain()
@@ -529,6 +560,7 @@ b1x,b1y = 430,156
 b2x,b2y = 430,186
 mbx,mby = 70,220
 lbx,lby = 70,335
+sbx,sby = 300,60
 
 # instantiate buttons
 browse = ttk.Button (root, style="Northland.TButton",text='Browse...', command=fileprompt) 
@@ -539,6 +571,8 @@ mainButton = ttk.Button (root, style="Northland.TButton", text='Export and Creat
 mainButton.pack()
 logButton = ttk.Button (root, style="Northland.TButton", text='Export Log Directory Metadata',command=getlogs,state=DISABLED) 
 logButton.pack()
+serviceButton = ttk.Button (root, style="Northland.TButton", text='Check Services',command=getservices) 
+serviceButton.pack()
 
 # draw button borders
 bw = 1 		# define border width around buttons in pixels
@@ -547,12 +581,14 @@ b1 = canvas1.create_rectangle(b1x,b1y,b1x+browse.winfo_width()+2*bw-1,b1y+browse
 b2 = canvas1.create_rectangle(b2x,b2y,b2x+logBrowse.winfo_width()+2*bw-1,b2y+logBrowse.winfo_height()+2*bw-1,fill=button_border_color,outline=button_border_color)
 b3 = canvas1.create_rectangle(mbx,mby,mbx+mainButton.winfo_width()+2*bw-1,mby+mainButton.winfo_height()+2*bw-1,fill=button_border_color,outline=button_border_color)
 b4 = canvas1.create_rectangle(lbx,lby,lbx+logButton.winfo_width()+2*bw-1,lby+logButton.winfo_height()+2*bw-1,fill=button_border_color,outline=button_border_color)
+b4 = canvas1.create_rectangle(sbx,sby,sbx+serviceButton.winfo_width()+2*bw-1,sby+serviceButton.winfo_height()+2*bw-1,fill=button_border_color,outline=button_border_color)
 
 # place buttons 
 browse.place(x=b1x+bw,y=b1y+bw,anchor=NW)
 logBrowse.place(x=b2x+bw,y=b2y+bw,anchor=NW)
 mainButton.place(x=mbx+bw,y=mby+bw,anchor=NW)
 logButton.place(x=lbx+bw,y=lby+bw,anchor=NW)
+serviceButton.place(x=sbx+bw,y=sby+bw,anchor=NW)
 
 northlandLabel = Label(text="Northland Control Systems",fg=fg_color,bg=bg_color)
 northlandLabel.pack()
